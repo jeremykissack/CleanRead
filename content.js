@@ -1,33 +1,56 @@
-function processText(text) {
-    return new Promise((resolve, reject) => {
-      chrome.runtime.sendMessage({ action: 'processText', text }, (response) => {
-        if (response.error) {
-          reject(response.error);
-        } else {
-          resolve(response.processedText);
-        }
-      });
+function createCleanReadButton() {
+    const button = document.createElement('button');
+    button.innerText = 'CleanRead';
+    button.style.marginLeft = '10px';
+    button.style.backgroundColor = '#0079d3';
+    button.style.color = 'white';
+    button.style.border = 'none';
+    button.style.borderRadius = '3px';
+    button.style.padding = '5px 10px';
+    button.style.cursor = 'pointer';
+    button.style.fontSize = '14px';
+    return button;
+  }
+  
+  function processText(element) {
+    const originalText = element.innerText;
+    chrome.runtime.sendMessage({ action: 'processText', text: originalText }, (response) => {
+      if (response.error) {
+        console.error('Failed to process text:', response.error);
+      } else {
+        element.innerText = response.processedText;
+      }
     });
   }
   
-  async function processPageText(node) {
-    if (node.nodeType === Node.TEXT_NODE) {
-      try {
-        node.textContent = await processText(node.textContent);
-      } catch (error) {
-        console.error('Error processing text:', error);
-      }
-    } else {
-      for (let child of node.childNodes) {
-        await processPageText(child);
+  function highlightText(element) {
+    element.style.backgroundColor = '#ffff99'; // You can change the color to your preference
+  }
+  
+  function removeHighlight(element) {
+    element.style.backgroundColor = '';
+  }
+  
+  function insertCleanReadButton() {
+    const MIN_TEXT_LENGTH = 100; // You can adjust this value to target larger or smaller text fields
+    const allElements = document.getElementsByTagName('*');
+  
+    for (let element of allElements) {
+      if (element.textContent.length >= MIN_TEXT_LENGTH && element.childElementCount === 0) {
+        const cleanReadButton = createCleanReadButton();
+        cleanReadButton.addEventListener('click', () => processText(element));
+        cleanReadButton.addEventListener('mouseover', () => highlightText(element));
+        cleanReadButton.addEventListener('mouseout', () => removeHighlight(element));
+        element.parentNode.insertBefore(cleanReadButton, element.nextSibling);
       }
     }
   }
   
-  // Check if the extension is enabled before processing the text
-  chrome.storage.sync.get(['enableExtension'], async (result) => {
-    if (result.enableExtension) {
-      await processPageText(document.body);
+  chrome.runtime.sendMessage({ action: 'getSettings' }, (response) => {
+    console.log('Settings received:', response);
+  
+    if (response.enableExtension) {
+      insertCleanReadButton();
     }
   });
   

@@ -1,14 +1,16 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const enableExtensionCheckbox = document.getElementById('enableExtension');
+document.getElementById('save').addEventListener('click', () => {
+    const apiKey = document.getElementById('apiKey').value;
+    const enableExtension = document.getElementById('enableExtension').checked;
   
-    // Load the saved settings
-    chrome.storage.sync.get(['enableExtension'], (result) => {
-      enableExtensionCheckbox.checked = result.enableExtension;
+    chrome.storage.sync.set({ apiKey, enableExtension }, () => {
+      console.log('Settings saved:', { apiKey, enableExtension });
     });
+  });
   
-    // Save the settings when the checkbox state changes
-    enableExtensionCheckbox.addEventListener('change', () => {
-      chrome.storage.sync.set({ enableExtension: enableExtensionCheckbox.checked });
-    });
+  // Load saved settings
+  chrome.storage.sync.get(['apiKey', 'enableExtension'], (result) => {
+    document.getElementById('apiKey').value = result.apiKey || '';
+    document.getElementById('enableExtension').checked = result.enableExtension || false;
+    console.log('Settings loaded: apiKey =', result.apiKey, 'enableExtension =', result.enableExtension);
   });
   

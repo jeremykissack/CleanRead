@@ -1,20 +1,21 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CleanRead Options</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        margin: 15px;
-      }
-    </style>
   </head>
   <body>
     <h1>CleanRead Options</h1>
-    <label>
+    <div>
+      <label for="apiKey">OpenAI API Key:</label>
+      <input type="text" id="apiKey" />
+    </div>
+    <div>
       <input type="checkbox" id="enableExtension" />
-      Enable CleanRead
-    </label>
+      <label for="enableExtension">Enable CleanRead</label>
+    </div>
+    <button id="save">Save</button>
     <script src="options.js"></script>
   </body>
 </html>
